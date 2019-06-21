@@ -6,9 +6,12 @@
 #endif // win32
 #include <time.h>
 
-#define BLACK CV_RGB(0,0,0)
-
 #include <opencv2/opencv.hpp>
+#include "opencv2/face.hpp"
+
+#define BLACK CV_RGB(0,0,0)
+using namespace cv::face;
+
 void sleepcp(int milliseconds) // cross-platform sleep function
 {
 #ifdef WIN32
@@ -44,7 +47,6 @@ int main()
 {
         try
         {
-            //reconnaissance des visages
 
             cv::VideoCapture videoOpenCv;
             bool test = videoOpenCv.open(0);
@@ -59,6 +61,20 @@ int main()
             {
                 throw -103;
             }
+
+            int im_width = 200;
+            int im_height = 200;
+            cv::Ptr<LBPHFaceRecognizer> model = cv::face::createLBPHFaceRecognizer();
+            try
+            {
+                model->load("trainer.yml");
+            }
+            catch(const std::exception& e)
+            {
+                std::cerr << "error : "<<e.what() << '\n';
+                exit(0);
+            }
+
             cv::Mat img;
             cv::Size sizeRect(40, 40);
 
@@ -67,6 +83,7 @@ int main()
             time(&start);
 
             cv::namedWindow("Window3", cv::WINDOW_AUTOSIZE);
+            cv::Mat face_resized;
 
             while(true)
             {
@@ -77,20 +94,33 @@ int main()
                 std::vector<cv::Rect> faces;
                 std::vector<std::string> names;
 
-
+                  std::string label;
 
                 face_cascade.detectMultiScale(img, faces, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE, sizeRect);
                 for( size_t i = 0; i < faces.size(); i++ )
                 {
-                    names.push_back("Human being");
+                    CvRect r = faces.at(i);
+                    int modelClass = -1;
+                    double confidence = 0.0;
+                    cv::Rect myMat(cvPoint( r.x, r.y ), cvPoint( r.x + r.width, r.y + r.height ));
+                    cv::Mat croppedImage = img(myMat);
+                    cv::resize(croppedImage, face_resized, cv::Size(200, 200), 1.0, 1.0, cv::INTER_CUBIC);
+
+                    model->predict(face_resized, modelClass, confidence);
+
+                    if (confidence < 100)
+                    {
+                        label = "{"+std::to_string(modelClass)+"} - "+std::to_string(confidence);
+                    }
+                    else
+                    {
+                        label ="unknown";
+                    }
+
+                    rectangle(img, cvPoint( r.x, r.y ), cvPoint( r.x + r.width, r.y + r.height ), BLACK, 1, 8, 0);
+                    putText(img,label, cvPoint(r.x + r.width + 10, r.y + r.height + 10), cv::FONT_HERSHEY_PLAIN, 1.0, BLACK, 2.0);
                 }
 
-                for( size_t i = 0; i < faces.size(); i++ )
-                {
-                  CvRect r = faces.at(i);
-                  rectangle(img, cvPoint( r.x, r.y ), cvPoint( r.x + r.width, r.y + r.height ), BLACK, 1, 8, 0);
-                  putText(img,names.at(i), cvPoint(r.x + r.width + 10, r.y + r.height + 10), cv::FONT_HERSHEY_PLAIN, 1.0, BLACK, 2.0);
-                }
 
                 count = calculationFPS(&start, count);
 

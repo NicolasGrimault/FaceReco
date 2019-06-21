@@ -68,11 +68,13 @@ int main()
                   std::string fname;
                   for( size_t i = 0; i < faces.size(); i++ ){
                     CvRect r = faces.at(i);
-                    cv::Rect myROI(cvPoint( r.x, r.y ), cvPoint( r.x + 200, r.y + 200 ));
+                    cv::Rect myROI(cvPoint( r.x, r.y ), cvPoint( r.x + r.width, r.y + r.height ));
                     cv::Mat croppedImage = img(myROI);
+                    cv::Mat face_resized;
+                    cv::resize(croppedImage, face_resized, cv::Size(200, 200), 1.0, 1.0, cv::INTER_CUBIC);
                     count++;
                     fname="./Photo"+std::to_string(count)+".png";
-                    cv::imwrite(fname,croppedImage);
+                    cv::imwrite(fname,face_resized);
                 }
               }
 
