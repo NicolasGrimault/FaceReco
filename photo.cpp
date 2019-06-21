@@ -71,7 +71,7 @@ int main()
                     cv::Rect myROI(cvPoint( r.x, r.y ), cvPoint( r.x + r.width, r.y + r.height ));
                     cv::Mat croppedImage = img(myROI);
                     cv::Mat face_resized;
-                    cv::resize(croppedImage, face_resized, cv::Size(200, 200), 1.0, 1.0, cv::INTER_CUBIC);
+                    cv::resize(croppedImage, face_resized, cv::Size(400, 400), 1.0, 1.0, cv::INTER_CUBIC);
                     count++;
                     fname="./Photo"+std::to_string(count)+".png";
                     cv::imwrite(fname,face_resized);

@@ -34,7 +34,7 @@ int calculationFPS(time_t *start, int count)
         seconds = difftime(end,*start);
         fps = count/seconds;
         std::cout << "\033[031;1mFrames per seconds : " << fps << "\033[0m" << std::endl;
-        sleepcp(300);
+        sleepcp(30);
 
         time(start);
 
@@ -55,14 +55,11 @@ int main()
             }
 
             cv::CascadeClassifier face_cascade;
-
             if(!face_cascade.load("/usr/share/opencv/haarcascades/haarcascade_frontalface_alt2.xml"))
             {
                 throw -103;
             }
 
-            int im_width = 200;
-            int im_height = 200;
             cv::Ptr<LBPHFaceRecognizer> model = cv::face::createLBPHFaceRecognizer();
             try
             {
@@ -74,62 +71,48 @@ int main()
                 exit(0);
             }
 
-            cv::Mat img;
-            cv::Size sizeRect(40, 40);
+
 
             int count = 0;
             time_t start;
             time(&start);
 
-            cv::namedWindow("Window3", cv::WINDOW_AUTOSIZE);
+            cv::Mat img;
+            cv::Mat map;
+            cv::Size sizeRect(40, 40);
 
             while(true)
             {
                 count++;
                 videoOpenCv.read(img);
-                cvtColor(img, img, CV_RGB2GRAY);
 
                 std::vector<cv::Rect> faces;
-                std::vector<std::string> names;
 
-                  std::string label;
+                face_cascade.detectMultiScale(img, faces, 1.1, 2, 0|CV_HAAR_FIND_BIGGEST_OBJECT, sizeRect);
+                if (faces.size() > 0) {
+                  CvRect r = faces.at(0);
+                  cv::Rect myMat(cvPoint( r.x, r.y ), cvPoint( r.x + r.width, r.y + r.height ));
+                  cv::Mat croppedImage = img(myMat);
+                  cv::resize(croppedImage, map, cv::Size(400, 400), 1.0, 1.0, cv::INTER_CUBIC);
+                  cvtColor(map, croppedImage, CV_RGB2GRAY);
 
-                face_cascade.detectMultiScale(img, faces, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE, sizeRect);
+                  int modelClass = -1;
+                  double confidence = 0.0;
+                  model->predict(croppedImage, modelClass, confidence);
 
-                for( size_t i = 0; i < faces.size(); i++ )
-                {
-                    CvRect r = faces.at(i);
-                    int modelClass = -1;
-                    double confidence = 0.0;
-                    cv::Rect myMat(cvPoint( r.x, r.y ), cvPoint( r.x + r.width, r.y + r.height ));
-                    cv::Mat croppedImage = img(myMat);
-                    cv::resize(croppedImage, croppedImage, cv::Size(200, 200), 1.0, 1.0, cv::INTER_CUBIC);
-
-                    model->predict(croppedImage, modelClass, confidence);
-
-                    if (confidence < 100)
-                    {
-                        label = "{"+std::to_string(modelClass)+"} - "+std::to_string(confidence);
-                    }
-                    else
-                    {
-                        label ="unknown";
-                    }
-
-                    rectangle(img, cvPoint( r.x, r.y ), cvPoint( r.x + r.width, r.y + r.height ), BLACK, 1, 8, 0);
-                    putText(img,label, cvPoint(r.x + r.width + 10, r.y + r.height + 10), cv::FONT_HERSHEY_PLAIN, 1.0, BLACK, 2.0);
+                  if (confidence < 100)
+                  {
+                      std::cout << modelClass << "\n";
+                  }
                 }
 
-
                 count = calculationFPS(&start, count);
-
-                cv::imshow("Window3", img);
+/*
                 int key = cv::waitKey(1000/25);
                 if(key==(int)'q')
                 {
                     break;
-                }
-
+                }*/
             }
         }
         catch(int e)
