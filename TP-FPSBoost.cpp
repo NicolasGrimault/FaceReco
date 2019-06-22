@@ -11,6 +11,7 @@
 
 #define BLACK CV_RGB(0,0,0)
 using namespace cv::face;
+using namespace cv;
 
 void sleepcp(int milliseconds) // cross-platform sleep function
 {
@@ -47,20 +48,20 @@ int main()
 {
         try
         {
-            cv::VideoCapture videoOpenCv;
+            VideoCapture videoOpenCv;
             bool test = videoOpenCv.open(0);
             if(test==false)
             {
                 throw -101;
             }
 
-            cv::CascadeClassifier face_cascade;
+            CascadeClassifier face_cascade;
             if(!face_cascade.load("/usr/share/opencv/haarcascades/haarcascade_frontalface_alt2.xml"))
             {
                 throw -103;
             }
 
-            cv::Ptr<LBPHFaceRecognizer> model = cv::face::createLBPHFaceRecognizer();
+            Ptr<LBPHFaceRecognizer> model = createLBPHFaceRecognizer();
             try
             {
                 model->load("trainer.yml");
@@ -77,23 +78,23 @@ int main()
             time_t start;
             time(&start);
 
-            cv::Mat img;
-            cv::Mat map;
-            cv::Size sizeRect(40, 40);
+            Mat img;
+            Mat map;
+            Size sizeRect(40, 40);
 
             while(true)
             {
                 count++;
                 videoOpenCv.read(img);
 
-                std::vector<cv::Rect> faces;
+                std::vector<Rect> faces;
 
                 face_cascade.detectMultiScale(img, faces, 1.1, 2, 0|CV_HAAR_FIND_BIGGEST_OBJECT, sizeRect);
                 if (faces.size() > 0) {
                   CvRect r = faces.at(0);
-                  cv::Rect myMat(cvPoint( r.x, r.y ), cvPoint( r.x + r.width, r.y + r.height ));
-                  cv::Mat croppedImage = img(myMat);
-                  cv::resize(croppedImage, map, cv::Size(400, 400), 1.0, 1.0, cv::INTER_CUBIC);
+                  Rect myMat(cvPoint( r.x, r.y ), cvPoint( r.x + r.width, r.y + r.height ));
+                  Mat croppedImage = img(myMat);
+                  resize(croppedImage, map, Size(400, 400), 1.0, 1.0, INTER_CUBIC);
                   cvtColor(map, croppedImage, CV_RGB2GRAY);
 
                   int modelClass = -1;

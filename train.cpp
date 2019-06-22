@@ -18,12 +18,15 @@ static void read_csv(const string& filename, vector<Mat>& images, vector<int>& l
         CV_Error(CV_StsBadArg, error_message);
     }
     string line, path, classlabel;
+    Mat croppedImage;
     while (getline(file, line)) {
         stringstream liness(line);
         getline(liness, path, separator);
         getline(liness, classlabel);
         if(!path.empty() && !classlabel.empty()) {
-            images.push_back(imread(path, 0));
+            Mat map = imread(path, 0);
+            //resize(croppedImage, map, Size(150, 150), 1.0, 1.0, INTER_CUBIC);
+            images.push_back(map);
             labels.push_back(atoi(classlabel.c_str()));
         }
     }
