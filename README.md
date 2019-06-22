@@ -1,15 +1,20 @@
 # FaceReco
 
-* Use photo to create some photos to train
+Exemple of command to build code
+```
+g++ -o train train.cpp `pkg-config  --cflags --libs opencv`
+```
 
-* Use train to train
+# Usage
+
+* photo is a program to take some facial photo (using key 'p')
+
+* train train the model with the input files and save it in `trainer.yml` 
 usage:
 ```
-./train input.csv outputFolder
+./train input.csv
 ```
 
+* main detect if the biggest face on the camera is recognized and, If so, send the class Id in the console
 
 Build files
-```
-g++ -o photo photo.cpp `pkg-config  --cflags --libs opencv`
-```
