@@ -17,4 +17,3 @@ usage:
 
 * main detect if the biggest face on the camera is recognized and, If so, send the class Id in the console
 
-Build files
