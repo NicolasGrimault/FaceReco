@@ -15,5 +15,6 @@ usage:
 ./train input.csv
 ```
 
-* main detect if the biggest face on the camera is recognized and, If so, send the class Id in the console
+* reco detect the biggest face on the camera and send the closest class Id in the console
 
+The `trainer.yml` must be in the same folder (`Reco/`) as the reco program
