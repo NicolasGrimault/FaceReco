@@ -61,7 +61,7 @@ int main()
                 throw -103;
             }
 
-            Ptr<LBPHFaceRecognizer> model = createLBPHFaceRecognizer();
+            Ptr<BasicFaceRecognizer> model = cv::face::createEigenFaceRecognizer();
             try
             {
                 model->load("trainer.yml");
@@ -79,7 +79,9 @@ int main()
             time(&start);
 
             Mat img;
-            Mat map;
+            Mat croppedMat;
+            Mat resizedMat;
+            Mat grayMat;
             Size sizeRect(40, 40);
 
             while(true)
@@ -92,14 +94,14 @@ int main()
                 face_cascade.detectMultiScale(img, faces, 1.1, 2, 0|CV_HAAR_FIND_BIGGEST_OBJECT, sizeRect);
                 if (faces.size() > 0) {
                   CvRect r = faces.at(0);
-                  Rect myMat(cvPoint( r.x, r.y ), cvPoint( r.x + r.width, r.y + r.height ));
-                  Mat croppedImage = img(myMat);
-                  resize(croppedImage, map, Size(150, 150), 1.0, 1.0, INTER_CUBIC);
-                  cvtColor(map, croppedImage, CV_RGB2GRAY);
+                  Rect rectMat(cvPoint( r.x, r.y ), cvPoint( r.x + r.width, r.y + r.height ));
+                  croppedMat = img(rectMat);
+                  resize(croppedMat, resizedMat, Size(92, 92), 1.0, 1.0, INTER_CUBIC);
+                  cvtColor(resizedMat, grayMat, CV_RGB2GRAY);
 
                   int modelClass = -1;
                   double confidence = 0.0;
-                  model->predict(croppedImage, modelClass, confidence);
+                  model->predict(grayMat, modelClass, confidence);
 
                   if (confidence < 100)
                   {
