@@ -25,8 +25,8 @@ static void read_csv(const string& filename, vector<Mat>& images, vector<int>& l
         getline(liness, classlabel);
         if(!path.empty() && !classlabel.empty()) {
             Mat map = imread(path, 0);
-            //resize(croppedImage, map, Size(150, 150), 1.0, 1.0, INTER_CUBIC);
-            images.push_back(map);
+            resize(map, croppedImage, Size(150, 150), 1.0, 1.0, INTER_CUBIC);
+            images.push_back(croppedImage);
             labels.push_back(atoi(classlabel.c_str()));
         }
     }

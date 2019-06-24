@@ -94,7 +94,7 @@ int main()
                   CvRect r = faces.at(0);
                   Rect myMat(cvPoint( r.x, r.y ), cvPoint( r.x + r.width, r.y + r.height ));
                   Mat croppedImage = img(myMat);
-                  resize(croppedImage, map, Size(400, 400), 1.0, 1.0, INTER_CUBIC);
+                  resize(croppedImage, map, Size(150, 150), 1.0, 1.0, INTER_CUBIC);
                   cvtColor(map, croppedImage, CV_RGB2GRAY);
 
                   int modelClass = -1;
