@@ -99,23 +99,11 @@ int main()
                   resize(croppedMat, resizedMat, Size(92, 92), 1.0, 1.0, INTER_CUBIC);
                   cvtColor(resizedMat, grayMat, CV_RGB2GRAY);
 
-                  int modelClass = -1;
-                  double confidence = 0.0;
-                  model->predict(grayMat, modelClass, confidence);
+                  int pred = model->predict(grayMat);
+                  std::cout << pred << "\n";
 
-                  if (confidence < 100)
-                  {
-                      std::cout << modelClass << "\n";
-                  }
                 }
-
                 count = calculationFPS(&start, count);
-/*
-                int key = cv::waitKey(1000/25);
-                if(key==(int)'q')
-                {
-                    break;
-                }*/
             }
         }
         catch(int e)
